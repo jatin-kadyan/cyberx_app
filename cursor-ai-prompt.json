@@ -1,0 +1,407 @@
+{
+  "project_name": "CyberX - Cybersecurity Awareness Platform",
+  "project_description": "A comprehensive React Native cross-platform mobile application for cybersecurity awareness, real-time threat alerts, incident reporting, and educational content with authority-verified sources",
+  
+  "tech_stack": {
+    "framework": "React Native with Expo",
+    "backend": "Supabase (PostgreSQL, Auth, Storage)",
+    "state_management": "React Query + Zustand",
+    "navigation": "React Navigation v6",
+    "ui_library": "React Native Elements + NativeBase",
+    "styling": "Styled Components + React Native Reanimated",
+    "environment": "React Native Config (.env support)",
+    "notifications": "Expo Notifications",
+    "storage": "AsyncStorage + Supabase Storage",
+    "security": "Expo SecureStore"
+  },
+
+  "core_features_from_synopsis": {
+    "real_time_alerts": {
+      "description": "Authority-verified cybersecurity alerts with engagement features",
+      "features": [
+        "Real-time push notifications",
+        "Authority verification badges",
+        "Severity indicators (Critical, Warning, Info)",
+        "Like, comment, share functionality",
+        "Alert filtering and search",
+        "Offline alert caching",
+        "Alert history and bookmarks"
+      ]
+    },
+    "incident_reporting": {
+      "description": "User-friendly incident reporting system",
+      "features": [
+        "Multi-step incident reporting form",
+        "File upload for evidence (images, documents)",
+        "Incident categorization (Phishing, Scam, Malware, etc.)",
+        "Status tracking of reported incidents",
+        "Anonymous reporting option",
+        "GPS location tagging (optional)",
+        "Report templates for common incidents"
+      ]
+    },
+    "educational_hub": {
+      "description": "Structured cybersecurity learning platform",
+      "features": [
+        "Progressive learning paths",
+        "Interactive quizzes and assessments",
+        "Video tutorials and articles",
+        "Phishing simulation tests",
+        "Achievement badges and progress tracking",
+        "Offline content download",
+        "Search functionality across content"
+      ]
+    },
+    "authority_verification": {
+      "description": "Verified sources only content model",
+      "features": [
+        "Authority badge system",
+        "Content moderation workflow",
+        "Source credibility scoring",
+        "Verified authority profiles",
+        "Content authenticity indicators"
+      ]
+    }
+  },
+
+  "modern_app_features": {
+    "user_profile": {
+      "features": [
+        "Profile picture upload and crop",
+        "Personal information management",
+        "Security preferences",
+        "Notification settings",
+        "Privacy controls",
+        "Account deletion option",
+        "Export user data",
+        "Two-factor authentication setup"
+      ]
+    },
+    "theme_controller": {
+      "features": [
+        "Dark/Light mode toggle",
+        "System theme following",
+        "Custom theme colors",
+        "Accessibility contrast settings",
+        "Font size adjustment",
+        "Color blind friendly options"
+      ]
+    },
+    "cache_management": {
+      "features": [
+        "Clear image cache",
+        "Clear app data",
+        "Storage usage display",
+        "Selective cache clearing",
+        "Auto-cache cleanup settings",
+        "Offline data management"
+      ]
+    },
+    "advanced_features": [
+      "Biometric authentication",
+      "App lock with PIN/Pattern",
+      "Secure screenshot prevention",
+      "Background app restrictions",
+      "Network security indicators",
+      "VPN detection and warnings",
+      "Device security assessment",
+      "Emergency contacts for incidents",
+      "QR code scanner for phishing detection",
+      "URL safety checker"
+    ]
+  },
+
+  "database_schema": {
+    "tables": [
+      {
+        "name": "users",
+        "description": "User profiles and authentication",
+        "sql": "CREATE TABLE users (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  email VARCHAR(255) UNIQUE NOT NULL,\n  full_name VARCHAR(255),\n  avatar_url TEXT,\n  phone VARCHAR(20),\n  is_verified BOOLEAN DEFAULT FALSE,\n  theme_preference VARCHAR(10) DEFAULT 'system',\n  notification_settings JSONB DEFAULT '{}',\n  privacy_settings JSONB DEFAULT '{}',\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()\n);"
+      },
+      {
+        "name": "authorities",
+        "description": "Verified authority sources",
+        "sql": "CREATE TABLE authorities (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  name VARCHAR(255) NOT NULL,\n  description TEXT,\n  logo_url TEXT,\n  website_url TEXT,\n  verification_status VARCHAR(20) DEFAULT 'pending',\n  credibility_score INTEGER DEFAULT 0,\n  contact_info JSONB,\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()\n);"
+      },
+      {
+        "name": "security_alerts",
+        "description": "Real-time security alerts from authorities",
+        "sql": "CREATE TABLE security_alerts (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  authority_id UUID REFERENCES authorities(id),\n  title VARCHAR(500) NOT NULL,\n  content TEXT NOT NULL,\n  severity VARCHAR(20) CHECK (severity IN ('critical', 'warning', 'info')),\n  category VARCHAR(50),\n  tags TEXT[],\n  media_urls TEXT[],\n  is_active BOOLEAN DEFAULT TRUE,\n  likes_count INTEGER DEFAULT 0,\n  comments_count INTEGER DEFAULT 0,\n  shares_count INTEGER DEFAULT 0,\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()\n);"
+      },
+      {
+        "name": "incident_reports",
+        "description": "User-reported cybersecurity incidents",
+        "sql": "CREATE TABLE incident_reports (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  user_id UUID REFERENCES users(id),\n  incident_type VARCHAR(50) NOT NULL,\n  title VARCHAR(500) NOT NULL,\n  description TEXT NOT NULL,\n  evidence_urls TEXT[],\n  location_data JSONB,\n  status VARCHAR(20) DEFAULT 'submitted',\n  is_anonymous BOOLEAN DEFAULT FALSE,\n  priority_level INTEGER DEFAULT 1,\n  assigned_to UUID,\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()\n);"
+      },
+      {
+        "name": "educational_content",
+        "description": "Learning materials and courses",
+        "sql": "CREATE TABLE educational_content (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  authority_id UUID REFERENCES authorities(id),\n  title VARCHAR(500) NOT NULL,\n  content TEXT,\n  content_type VARCHAR(20) CHECK (content_type IN ('article', 'video', 'quiz', 'simulation')),\n  difficulty_level VARCHAR(20) CHECK (difficulty_level IN ('beginner', 'intermediate', 'advanced')),\n  category VARCHAR(50),\n  tags TEXT[],\n  media_url TEXT,\n  duration_minutes INTEGER,\n  is_interactive BOOLEAN DEFAULT FALSE,\n  prerequisites TEXT[],\n  learning_objectives TEXT[],\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()\n);"
+      },
+      {
+        "name": "user_interactions",
+        "description": "User engagement with content",
+        "sql": "CREATE TABLE user_interactions (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  user_id UUID REFERENCES users(id),\n  content_id UUID,\n  content_type VARCHAR(20) CHECK (content_type IN ('alert', 'educational', 'report')),\n  interaction_type VARCHAR(20) CHECK (interaction_type IN ('like', 'comment', 'share', 'bookmark', 'complete')),\n  metadata JSONB,\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()\n);"
+      },
+      {
+        "name": "user_progress",
+        "description": "Learning progress and achievements",
+        "sql": "CREATE TABLE user_progress (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  user_id UUID REFERENCES users(id),\n  content_id UUID REFERENCES educational_content(id),\n  progress_percentage INTEGER DEFAULT 0,\n  completed_at TIMESTAMP WITH TIME ZONE,\n  quiz_scores JSONB,\n  time_spent_seconds INTEGER DEFAULT 0,\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()\n);"
+      },
+      {
+        "name": "notifications",
+        "description": "Push notifications and alerts",
+        "sql": "CREATE TABLE notifications (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  user_id UUID REFERENCES users(id),\n  title VARCHAR(255) NOT NULL,\n  body TEXT NOT NULL,\n  type VARCHAR(50) NOT NULL,\n  data JSONB,\n  is_read BOOLEAN DEFAULT FALSE,\n  sent_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n  read_at TIMESTAMP WITH TIME ZONE\n);"
+      }
+    ],
+    "rls_policies": [
+      "ALTER TABLE users ENABLE ROW LEVEL SECURITY;",
+      "ALTER TABLE incident_reports ENABLE ROW LEVEL SECURITY;",
+      "ALTER TABLE user_interactions ENABLE ROW LEVEL SECURITY;",
+      "ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;",
+      "ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;",
+      "CREATE POLICY \"Users can view own profile\" ON users FOR SELECT USING (auth.uid() = id);",
+      "CREATE POLICY \"Users can update own profile\" ON users FOR UPDATE USING (auth.uid() = id);",
+      "CREATE POLICY \"Users can view their reports\" ON incident_reports FOR SELECT USING (auth.uid() = user_id);",
+      "CREATE POLICY \"Users can create reports\" ON incident_reports FOR INSERT WITH CHECK (auth.uid() = user_id);"
+    ]
+  },
+
+  "folder_structure": {
+    "root": {
+      "src/": {
+        "components/": {
+          "common/": ["Header.tsx", "Footer.tsx", "LoadingSpinner.tsx", "ErrorBoundary.tsx"],
+          "forms/": ["IncidentReportForm.tsx", "ProfileForm.tsx", "FeedbackForm.tsx"],
+          "cards/": ["AlertCard.tsx", "EducationalCard.tsx", "ReportCard.tsx"],
+          "modals/": ["ConfirmModal.tsx", "ShareModal.tsx", "FilterModal.tsx"],
+          "charts/": ["SecurityMetrics.tsx", "ProgressChart.tsx"]
+        },
+        "screens/": {
+          "auth/": ["LoginScreen.tsx", "RegisterScreen.tsx", "ForgotPasswordScreen.tsx"],
+          "main/": ["HomeScreen.tsx", "AlertsScreen.tsx", "ReportsScreen.tsx", "EducationScreen.tsx"],
+          "profile/": ["ProfileScreen.tsx", "SettingsScreen.tsx", "ThemeScreen.tsx"],
+          "incident/": ["CreateReportScreen.tsx", "ReportDetailScreen.tsx", "ReportHistoryScreen.tsx"]
+        },
+        "hooks/": [
+          "useAuth.ts",
+          "useAlerts.ts",
+          "useReports.ts",
+          "useEducation.ts",
+          "useTheme.ts",
+          "useNotifications.ts",
+          "useCache.ts"
+        ],
+        "services/": {
+          "api/": ["supabase.ts", "alerts.ts", "reports.ts", "education.ts", "users.ts"],
+          "storage/": ["cache.ts", "secure-storage.ts", "file-upload.ts"],
+          "notifications/": ["push-notifications.ts", "local-notifications.ts"]
+        },
+        "utils/": [
+          "constants.ts",
+          "helpers.ts",
+          "validators.ts",
+          "security.ts",
+          "url-checker.ts",
+          "phishing-detector.ts"
+        ],
+        "store/": [
+          "auth-store.ts",
+          "alerts-store.ts",
+          "theme-store.ts",
+          "settings-store.ts"
+        ],
+        "styles/": [
+          "theme.ts",
+          "colors.ts",
+          "typography.ts",
+          "spacing.ts"
+        ],
+        "types/": [
+          "api.ts",
+          "user.ts",
+          "alert.ts",
+          "report.ts",
+          "education.ts"
+        ]
+      },
+      "assets/": {
+        "images/": ["logo/", "icons/", "illustrations/"],
+        "fonts/": ["custom-fonts/"],
+        "animations/": ["lottie-files/"]
+      }
+    }
+  },
+
+  "environment_setup": {
+    "env_file": ".env",
+    "required_variables": [
+      "SUPABASE_URL=your_supabase_project_url",
+      "SUPABASE_ANON_KEY=your_supabase_anon_key",
+      "SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key",
+      "EXPO_PUBLIC_API_URL=your_api_base_url",
+      "EXPO_PUBLIC_APP_VERSION=1.0.0",
+      "EXPO_PUBLIC_ENVIRONMENT=development",
+      "PUSH_NOTIFICATION_KEY=your_push_notification_key",
+      "SENTRY_DSN=your_sentry_dsn_for_error_tracking",
+      "GOOGLE_MAPS_API_KEY=your_google_maps_key"
+    ]
+  },
+
+  "ui_ux_design_guidelines": {
+    "design_system": {
+      "colors": {
+        "primary": "#0066CC (Cyber Blue)",
+        "secondary": "#00CCFF (Electric Blue)",
+        "accent": "#FF6B35 (Alert Orange)",
+        "success": "#00C896 (Secure Green)",
+        "warning": "#FFB800 (Warning Yellow)",
+        "error": "#FF4757 (Danger Red)",
+        "neutral": "#2C3E50 (Dark Gray)"
+      },
+      "typography": {
+        "heading": "Inter Bold",
+        "body": "Inter Regular",
+        "monospace": "Fira Code"
+      },
+      "spacing": "8px base unit",
+      "border_radius": "8px default, 16px cards, 4px buttons",
+      "shadows": "Subtle elevation with cyber glow effects"
+    },
+    "user_experience": {
+      "principles": [
+        "Security-first design with clear visual hierarchy",
+        "Minimal cognitive load with progressive disclosure",
+        "Consistent iconography for threat levels",
+        "Accessible design for all users (WCAG 2.1 AA)",
+        "Offline-first approach with sync capabilities",
+        "Gesture-based navigation for mobile optimization"
+      ],
+      "animations": [
+        "Micro-interactions for feedback",
+        "Loading states with cyber-themed animations",
+        "Smooth transitions between screens",
+        "Alert pulse animations for critical threats",
+        "Progress indicators for learning modules"
+      ]
+    }
+  },
+
+  "security_implementation": {
+    "authentication": [
+      "Email/password with email verification",
+      "Two-factor authentication (TOTP)",
+      "Biometric authentication (fingerprint/face)",
+      "Social login (Google, Apple) with privacy controls",
+      "Session management with auto-logout"
+    ],
+    "data_protection": [
+      "End-to-end encryption for sensitive data",
+      "Secure storage using Expo SecureStore",
+      "API request encryption and signing",
+      "Certificate pinning for API calls",
+      "Anti-tampering and root detection"
+    ],
+    "privacy_features": [
+      "Granular notification preferences",
+      "Data export and deletion options",
+      "Anonymous reporting capabilities",
+      "Local data encryption",
+      "Network security warnings"
+    ]
+  },
+
+  "key_packages_to_install": [
+    "@supabase/supabase-js",
+    "@react-navigation/native",
+    "@react-navigation/bottom-tabs",
+    "@react-navigation/stack",
+    "react-native-elements",
+    "native-base",
+    "styled-components",
+    "react-native-reanimated",
+    "react-native-config",
+    "@tanstack/react-query",
+    "zustand",
+    "expo-notifications",
+    "expo-secure-store",
+    "expo-local-authentication",
+    "expo-image-picker",
+    "expo-document-picker",
+    "expo-camera",
+    "react-native-qrcode-scanner",
+    "react-native-async-storage",
+    "react-native-vector-icons",
+    "lottie-react-native",
+    "react-native-chart-kit",
+    "react-native-progress",
+    "expo-haptics"
+  ],
+
+  "development_instructions": {
+    "setup_steps": [
+      "1. Initialize Expo project with TypeScript template",
+      "2. Install all required dependencies",
+      "3. Setup Supabase project and configure environment variables",
+      "4. Create database tables using provided SQL commands",
+      "5. Implement folder structure as specified",
+      "6. Setup authentication flow with Supabase Auth",
+      "7. Create reusable components following design system",
+      "8. Implement state management with Zustand",
+      "9. Setup push notifications with Expo Notifications",
+      "10. Add biometric authentication",
+      "11. Implement offline caching strategy",
+      "12. Add comprehensive error handling and logging",
+      "13. Setup automated testing with Jest and Detox",
+      "14. Configure CI/CD pipeline for deployment"
+    ],
+    "best_practices": [
+      "Use TypeScript for all files with strict type checking",
+      "Implement proper error boundaries and fallback UI",
+      "Follow React Native performance optimization guidelines",
+      "Use React Query for server state management",
+      "Implement proper loading states and skeleton screens",
+      "Add comprehensive logging for debugging",
+      "Use React.memo and useMemo for performance optimization",
+      "Implement proper accessibility features",
+      "Add comprehensive unit and integration tests",
+      "Use ESLint and Prettier for code formatting"
+    ]
+  },
+
+  "additional_features_to_implement": [
+    "QR code scanner for phishing link detection",
+    "URL safety checker before opening external links",
+    "Phishing email simulator for training",
+    "Device security assessment dashboard",
+    "Emergency contact integration for critical incidents",
+    "Offline incident reporting with sync when online",
+    "Multi-language support (i18n)",
+    "Dark web monitoring alerts (premium feature)",
+    "Company domain-specific threat intelligence",
+    "Gamification with security awareness challenges",
+    "Social sharing with privacy controls",
+    "Advanced analytics dashboard for security metrics",
+    "Integration with popular password managers",
+    "Secure file sharing for incident evidence",
+    "Voice-to-text for incident reporting",
+    "AI-powered threat analysis and recommendations"
+  ],
+
+  "testing_strategy": {
+    "unit_tests": "Jest for component and utility testing",
+    "integration_tests": "React Native Testing Library",
+    "e2e_tests": "Detox for full app flow testing",
+    "security_tests": "Automated security scanning with tools like MobSF",
+    "performance_tests": "Flipper integration for performance monitoring"
+  },
+
+  "deployment_configuration": {
+    "platforms": ["iOS App Store", "Google Play Store"],
+    "build_system": "EAS Build for managed workflow",
+    "distribution": "EAS Submit for automated store submission",
+    "analytics": "Expo Analytics + custom security metrics",
+    "crash_reporting": "Sentry for error tracking and performance monitoring",
+    "feature_flags": "Implementation for gradual feature rollout"
+  }
+}
